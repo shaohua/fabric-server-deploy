@@ -5,7 +5,7 @@ from fabric.contrib.console import *
 env.user = 'root'
 
 # apt-get install libevent-dev
-# apt-get install python-all-dev
+# 
 # easy_install greenlet
 # easy_install gevent
 
@@ -14,11 +14,11 @@ def build_server():
 	base_host_setup()
 	setup_security()
 	install_git()
-	install_postgres()
-	install_redis()
+	install_python()
+	install_mysql()
 	install_nginx()
 	install_supervisor()
-
+	#
 	restart_server()
 
 def base_host_setup():
@@ -41,22 +41,12 @@ def base_host_setup():
 		append('/etc/hosts', '{host_ip6}    {host_name}.{company_name}.com    {host_name}'.format(host_ip6=env.host_ip6, host_name=env.host_name, company_name=env.company_name), use_sudo=True) 
 
 	new_user(env.new_username, env.new_password)
-	upgrade_host()
-
-	runcmd('apt-get -y install python-setuptools')
-	runcmd('easy_install pip')
-	runcmd('pip install virtualenv')
-
+	#upgrade_host()
 
 # Installs
 
 def install_supervisor():
 	runcmd('sudo apt-get -y install supervisor')
-
-def install_redis():
-	runcmd('add-apt-repository ppa:rwky/redis')
-	runcmd('apt-get update & apt-get -y install redis-server')
-	
 
 def install_fail2ban():
 	runcmd('apt-get -y install fail2ban')
@@ -64,18 +54,14 @@ def install_fail2ban():
 def install_git():
 	runcmd('apt-get -y install git-core')
 
-def install_postgres():
-	runcmd('apt-get install -y libpq-dev python-dev') # Necessary for psycopg2 to work
-	runcmd('apt-get install -y postgresql postgresql-contrib')
-	sudo('psql template1 < /usr/share/postgresql/*/contrib/adminpack.sql', user='postgres')
-	
-	sed('/etc/postgresql/*/main/pg_hba.conf', 
-		'local   all         all                               ident',
-		'local   all         all                               md5',
-		use_sudo=True)
+#https://github.com/fiee/generic_django_project/blob/master/fabfile.py
+def install_python():
+	runcmd('apt-get install -y build-essential python-dev python-setuptools')
+	runcmd('easy_install pip')
+	runcmd('pip install virtualenv')
 
-	runcmd('/etc/init.d/postgresql-* restart')
-
+def install_mysql():
+	runcmd('apt-get install -y mysql-server python-mysqldb')
 
 def install_nginx():
 	# TODO: Clean up old nginx if installed
@@ -102,20 +88,20 @@ def configure_firewall():
 def upgrade_host():
 	runcmd('apt-get -y update && apt-get -y upgrade --show-upgraded')
 
-def create_db_user(db_user):
-	"""
-	Postgres
-	"""
-	with settings(warn_only=True):
-		sudo('createuser -d -P {db_user}'.format(db_user=db_user), user='postgres')
+# def create_db_user(db_user):
+# 	"""
+# 	Postgres
+# 	"""
+# 	with settings(warn_only=True):
+# 		sudo('createuser -d -P {db_user}'.format(db_user=db_user), user='postgres')
 
-def create_db(db_name, db_user):
-	"""
-	Postgres
-	"""
-	create_db_user(db_user)
-	with settings(warn_only=True):
-		sudo('createdb -O {db_user} {db_name}'.format(db_name=db_name, db_user=db_user), user='postgres')
+# def create_db(db_name, db_user):
+# 	"""
+# 	Postgres
+# 	"""
+# 	create_db_user(db_user)
+# 	with settings(warn_only=True):
+# 		sudo('createdb -O {db_user} {db_name}'.format(db_name=db_name, db_user=db_user), user='postgres')
 
 def new_user(admin_username, admin_password):
 	env.user='root'
