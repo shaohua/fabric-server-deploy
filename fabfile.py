@@ -41,7 +41,7 @@ def base_host_setup():
 		append('/etc/hosts', '{host_ip6}    {host_name}.{company_name}.com    {host_name}'.format(host_ip6=env.host_ip6, host_name=env.host_name, company_name=env.company_name), use_sudo=True) 
 
 	new_user(env.new_username, env.new_password)
-	#upgrade_host()
+	upgrade_host()
 
 # Installs
 
