@@ -9,6 +9,10 @@ env.user = 'root'
 # easy_install greenlet
 # easy_install gevent
 
+def build_server_lite():
+	setup_security()
+	install_git()
+
 # Heavy lifting
 def build_server():
 	base_host_setup()
