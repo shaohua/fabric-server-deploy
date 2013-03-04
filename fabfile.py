@@ -65,7 +65,7 @@ def install_python():
 	runcmd('pip install virtualenv')
 
 def install_mysql():
-	runcmd('apt-get install -y mysql-server python-mysqldb')
+	runcmd('apt-get install -y mysql-server python-mysqldb libmysqlclient-dev')
 
 def install_nginx():
 	# TODO: Clean up old nginx if installed
